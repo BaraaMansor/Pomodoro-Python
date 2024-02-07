@@ -20,10 +20,13 @@ def start_timer():
     long_sec = LONG_BREAK_MIN * 60
     
     if REPS % 2 != 0:
+        title_label.config(text="Work", fg=GREEN)
         count_down(work_sec)
     elif REPS == 8:
+        title_label.config(text="Break", fg=RED)
         count_down(long_sec)
     else:
+        title_label.config(text="Break", fg=PINK)
         count_down(short_sec)
     REPS += 1
     
@@ -38,6 +41,8 @@ def count_down(count):
     canvas.itemconfig(timer_txt, text=f'{count_min}:{count_sec}')
     if count > 0:
         window.after(1000, count_down, count-1)
+    else:
+        start_timer()
 
 # ---------------------------- UI SETUP ------------------------------- #
 
