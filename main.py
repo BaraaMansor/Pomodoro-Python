@@ -9,27 +9,47 @@ WORK_MIN = 25
 SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
 REPS = 1
-
-# ---------------------------- TIMER RESET ------------------------------- # 
+timer = None
+On = False
 
 # ---------------------------- TIMER MECHANISM ------------------------------- # 
 def start_timer():
+    global On
+    if not On:
+        On = True
+        global REPS
+        work_sec = WORK_MIN * 60
+        short_sec = SHORT_BREAK_MIN * 60
+        long_sec = LONG_BREAK_MIN * 60
+        
+        if REPS == 8:
+            title_label.config(text="Break", fg=RED)
+            count_down(long_sec)
+        elif REPS % 2 == 0:
+            title_label.config(text="Break", fg=PINK)
+            count_down(short_sec)
+            
+            mark = ""
+            for _ in range(REPS//2):
+                mark += "✔"
+            check_marks.config(text=mark)
+            
+        else:
+            title_label.config(text="Work", fg=GREEN)
+            count_down(work_sec)
+        REPS += 1
+    
+def reset_timer():
+    window.after_cancel(timer)
+        
+    canvas.itemconfig(timer_txt, text="00:00")
+    title_label.config(text="Timer")
+    check_marks.config(text="")
+
     global REPS
-    work_sec = WORK_MIN * 60
-    short_sec = SHORT_BREAK_MIN * 60
-    long_sec = LONG_BREAK_MIN * 60
-    
-    if REPS % 2 != 0:
-        title_label.config(text="Work", fg=GREEN)
-        count_down(work_sec)
-    elif REPS == 8:
-        title_label.config(text="Break", fg=RED)
-        count_down(long_sec)
-    else:
-        title_label.config(text="Break", fg=PINK)
-        count_down(short_sec)
-    REPS += 1
-    
+    REPS = 1
+    global On
+    On = False
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
 def count_down(count):
@@ -40,7 +60,8 @@ def count_down(count):
         count_sec = f'0{count_sec}'
     canvas.itemconfig(timer_txt, text=f'{count_min}:{count_sec}')
     if count > 0:
-        window.after(1000, count_down, count-1)
+        global timer
+        timer = window.after(1000, count_down, count-1)
     else:
         start_timer()
 
@@ -62,10 +83,10 @@ canvas.grid(column=1, row=1)
 start_button = Button(text="Start", highlightthickness=0, command=start_timer)
 start_button.grid(column=0, row=2)
 
-end_button = Button(text="End", highlightthickness=0)
+end_button = Button(text="Reset", highlightthickness=0, command=reset_timer)
 end_button.grid(column=2, row=2)
 
-check_marks = Label(text='✔', fg=GREEN, bg=YELLOW, font=(FONT_NAME, 20))
+check_marks = Label(text='', fg=GREEN, bg=YELLOW, font=(FONT_NAME, 20))
 check_marks.grid(column=1, row=3)
 
 
